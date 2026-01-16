@@ -7,12 +7,37 @@ import {
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
+  Alert,
 } from "react-native";
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { useLoader } from "@/hooks/useLoader";
+import { login } from "@/services/authServices";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter(); 
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const { showLoader, hideLoader, isLoading } = useLoader();
+
+  const handleLogin = async () => {
+    if (!email || !password || isLoading) {
+      Alert.alert("Please enter email and password");
+      return;
+    }
+    showLoader();
+    try {
+      await login(email, password);
+      router.replace("/home");
+    } catch (e) {
+      console.error(e);
+      Alert.alert("Login fail");
+    } finally {
+      hideLoader();
+    }
+  };
 
   return (
     <KeyboardAvoidingView
@@ -35,6 +60,8 @@ export default function Login() {
           placeholderTextColor="#7D8F69"
           style={styles.inputField}
           autoCapitalize="none"
+          value={email}
+          onChangeText={setEmail}
         />
 
         {/* Password Input */}
@@ -44,6 +71,8 @@ export default function Login() {
             placeholderTextColor="#7D8F69"
             secureTextEntry={!showPassword}
             style={{ flex: 1, color: "#1a4d2e" }}
+            value={password}
+            onChangeText={setPassword}
           />
           <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
             <Ionicons
@@ -55,7 +84,9 @@ export default function Login() {
         </View>
 
         {/* Sign In Button */}
-        <TouchableOpacity activeOpacity={0.8} style={styles.signInButton}>
+        <TouchableOpacity activeOpacity={0.8} style={styles.signInButton}
+        onPress={handleLogin}
+        >
           <Text style={styles.buttonText}>Sign In</Text>
         </TouchableOpacity>
 
