@@ -1,22 +1,60 @@
+import { useLoader } from "@/hooks/useLoader";
+import { registerUser } from "@/services/authServices";
+import { RegisterData } from "@/types/Auth";
+import { Ionicons } from "@expo/vector-icons";
+import { Link, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  View,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  ScrollView,
+  View,
 } from "react-native";
-import { Link } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
 
 export default function Register() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [conPassword, setConPassword] = useState("");
+
+  const { showLoader, hideLoader, isLoading } = useLoader();
+
+  const handleRegister = async () => {
+    if (!fullName || !email || !password || !conPassword) {
+      Alert.alert("Please fill all fields...!");
+      return;
+    }
+    if (password !== conPassword) {
+      Alert.alert("Password do not match...!");
+      return;
+    }
+    showLoader();
+    const userdata:RegisterData={
+        fullname: fullName,
+        email:email,
+        password:password,
+        confirmPassword:conPassword
+    }
+
+    try {
+      await registerUser(userdata);
+      Alert.alert("Account created..!");
+      router.replace("/login");
+    } catch (e) {
+      console.error(e);
+      Alert.alert("Register fail..!");
+    } finally {
+      hideLoader();
+    }
+  };
 
   return (
     <KeyboardAvoidingView
@@ -76,8 +114,33 @@ export default function Register() {
             </TouchableOpacity>
           </View>
 
+          {/* Password Confirm Input */}
+          <View style={styles.passwordContainer}>
+            <TextInput
+              placeholder="Confirm Password"
+              placeholderTextColor="#7D8F69"
+              secureTextEntry={!showConfirmPassword}
+              style={{ flex: 1, color: "#1a4d2e" }}
+              value={conPassword}
+              onChangeText={setConPassword}
+            />
+            <TouchableOpacity
+              onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+            >
+              <Ionicons
+                name={showConfirmPassword ? "eye-off" : "eye"}
+                size={20}
+                color="#527853"
+              />
+            </TouchableOpacity>
+          </View>
+
           {/* Register Button */}
-          <TouchableOpacity activeOpacity={0.8} style={styles.registerButton}>
+          <TouchableOpacity
+            activeOpacity={0.8}
+            style={styles.registerButton}
+            onPress={handleRegister}
+          >
             <Text style={styles.buttonText}>Register</Text>
           </TouchableOpacity>
 
