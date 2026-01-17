@@ -1,8 +1,8 @@
 import React from "react";
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { BlurView } from "expo-blur"; // npx expo install expo-blur
-import { StyleSheet, Platform } from "react-native";
+import { BlurView } from "expo-blur";
+import { StyleSheet, Platform, View } from "react-native";
 
 export default function TabLayout() {
   return (
@@ -10,11 +10,13 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: styles.tabBar,
-        tabBarActiveTintColor: "#1A4D2E", // Deep Forest Green
+        tabBarActiveTintColor: "#1A4D2E",
         tabBarInactiveTintColor: "#A9AF94",
+        tabBarShowLabel: true,
+        tabBarLabelStyle: { fontSize: 10, fontWeight: "600", marginBottom: 5 },
         tabBarBackground: () => (
           <BlurView
-            intensity={80}
+            intensity={95}
             tint="light"
             style={StyleSheet.absoluteFill}
           />
@@ -24,9 +26,9 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Dash",
+          title: "Home",
           tabBarIcon: ({ color }) => (
-            <Ionicons name="apps-outline" size={24} color={color} />
+            <Ionicons name="leaf-outline" size={24} color={color} />
           ),
         }}
       />
@@ -43,13 +45,15 @@ export default function TabLayout() {
         name="add"
         options={{
           title: "",
-          tabBarIcon: ({ color }) => (
-            <Ionicons
-              name="add-circle"
-              size={45}
-              color="#4F6F52"
-              style={{ marginTop: -5 }}
-            />
+          tabBarIcon: ({ focused }) => (
+            <View
+              style={[
+                styles.fab,
+                { backgroundColor: focused ? "#1A4D2E" : "#4F6F52" },
+              ]}
+            >
+              <Ionicons name="add" size={32} color="white" />
+            </View>
           ),
         }}
       />
@@ -58,7 +62,7 @@ export default function TabLayout() {
         options={{
           title: "Stats",
           tabBarIcon: ({ color }) => (
-            <Ionicons name="pie-chart-outline" size={24} color={color} />
+            <Ionicons name="bar-chart-outline" size={24} color={color} />
           ),
         }}
       />
@@ -78,14 +82,13 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   tabBar: {
     position: "absolute",
-    bottom: 25,
+    bottom: Platform.OS === "ios" ? 30 : 20,
     left: 20,
     right: 20,
-    elevation: 0,
-    borderRadius: 25,
-    height: 65,
+    borderRadius: 30,
+    height: 70,
     borderTopWidth: 0,
-    overflow: "hidden",
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
     ...Platform.select({
       ios: {
         shadowColor: "#000",
@@ -95,5 +98,17 @@ const styles = StyleSheet.create({
       },
       android: { elevation: 5 },
     }),
+  },
+  fab: {
+    width: 55,
+    height: 55,
+    borderRadius: 28,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: -10, // Lifts the button out of the bar
+    shadowColor: "#4F6F52",
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 5,
   },
 });
