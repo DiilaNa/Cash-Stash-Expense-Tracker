@@ -34,7 +34,29 @@ export default function ViewTransactions() {
     };
   }, []);
 
-
+  const handleDelete = (id: string) => {
+    Alert.alert(
+      "Delete Transaction",
+      "This action cannot be undone. Continue?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              showLoader();
+              await deleteTransactions(id);
+            } catch (error) {
+              Alert.alert("Error", "Failed to delete record.");
+            } finally {
+              hideLoader();
+            }
+          },
+        },
+      ],
+    );
+  };
 
   const loadMore = () => {
     setVisibleCount((prev) => prev + 10);
