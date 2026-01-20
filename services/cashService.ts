@@ -9,12 +9,18 @@ import {
   QuerySnapshot,
   DocumentData,
   addDoc,
+  deleteDoc,
+  doc,
 } from "firebase/firestore";
 import { TransactionData, TransactionSummary } from "@/types/Cash";
 
 export const addTransaction = async (transactiondata: TransactionData) => {
   return await addDoc(collection(db, "transactions"), transactiondata);
 };
+
+export const deleteTransactions = async(id:string) => {
+  return await deleteDoc(doc(db, "transactions", id));
+}
 
 
 export const getTransactionsByUser = (
