@@ -1,23 +1,25 @@
-import React, { useEffect, useState } from "react";
+import { useLoader } from "@/hooks/useLoader";
 import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity,
-  Alert,
-  ActivityIndicator,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
-import {
-  getTransactionsByUser,
   deleteTransactions,
+  getTransactionsByUser,
 } from "@/services/cashService";
 import { TransactionData } from "@/types/Cash";
-import { useLoader } from "@/hooks/useLoader";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ViewTransactions() {
+    const router = useRouter();
   const [transactions, setTransactions] = useState<TransactionData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [visibleCount, setVisibleCount] = useState<number>(5);
@@ -56,6 +58,19 @@ export default function ViewTransactions() {
         },
       ],
     );
+  };
+
+
+  const handleUpdate = (item: TransactionData) => {
+    router.push({
+      pathname: "/(dashboard)/(components)/update",
+      params: {
+        id: item.id,
+        amount: item.amount.toString(),
+        description: item.description,
+        category: item.categoryName,
+      },
+    });
   };
 
   const loadMore = () => {
@@ -99,7 +114,7 @@ export default function ViewTransactions() {
           <TouchableOpacity
             style={styles.actionBtn}
             onPress={() =>
-              Alert.alert("Coming Soon", "Update modal will open here.")
+              handleUpdate(item)
             }
           >
             <Ionicons name="pencil-outline" size={18} color="#739072" />

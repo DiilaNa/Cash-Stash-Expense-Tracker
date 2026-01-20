@@ -11,6 +11,7 @@ import {
   addDoc,
   deleteDoc,
   doc,
+  updateDoc,
 } from "firebase/firestore";
 import { TransactionData, TransactionSummary } from "@/types/Cash";
 
@@ -21,7 +22,6 @@ export const addTransaction = async (transactiondata: TransactionData) => {
 export const deleteTransactions = async(id:string) => {
   return await deleteDoc(doc(db, "transactions", id));
 }
-
 
 export const getTransactionsByUser = (
   callback: (data: TransactionSummary) => void,
@@ -60,4 +60,12 @@ export const getTransactionsByUser = (
       console.error("Firestore error:", error);
     },
   );
+};
+
+export const updateTransaction = async (
+  id: string,
+  updatedData: Partial<TransactionData>,
+) => {
+  const transactionRef = doc(db, "transactions", id);
+  return await updateDoc(transactionRef, updatedData);
 };

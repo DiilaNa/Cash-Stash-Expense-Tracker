@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: -10, // Lifts the button out of the bar
+    marginTop: -10,
     shadowColor: "#4F6F52",
     shadowOpacity: 0.3,
     shadowRadius: 10,
