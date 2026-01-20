@@ -5,6 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Link, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
   Platform,
@@ -36,15 +37,15 @@ export default function Register() {
       Alert.alert("Password do not match...!");
       return;
     }
-    showLoader();
-    const userdata:RegisterData={
-        fullname: fullName,
-        email:email,
-        password:password,
-        confirmPassword:conPassword
-    }
+    const userdata: RegisterData = {
+      fullname: fullName,
+      email: email,
+      password: password,
+      confirmPassword: conPassword,
+    };
 
     try {
+      showLoader();
       await registerUser(userdata);
       Alert.alert("Account created..!");
       router.replace("/login");
@@ -135,13 +136,17 @@ export default function Register() {
             </TouchableOpacity>
           </View>
 
-          {/* Register Button */}
           <TouchableOpacity
             activeOpacity={0.8}
-            style={styles.registerButton}
+            style={[styles.registerButton, isLoading && { opacity: 0.7 }]}
             onPress={handleRegister}
+            disabled={isLoading}
           >
-            <Text style={styles.buttonText}>Register</Text>
+            {isLoading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.buttonText}>Register</Text>
+            )}
           </TouchableOpacity>
 
           {/* Footer Link */}

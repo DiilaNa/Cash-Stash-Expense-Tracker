@@ -8,6 +8,7 @@ import {
   Platform,
   StyleSheet,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import { Link, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -27,8 +28,8 @@ export default function Login() {
       Alert.alert("Please enter email and password");
       return;
     }
-    showLoader();
     try {
+      showLoader();
       await login(email, password);
       router.replace("/home");
     } catch (e) {
@@ -44,17 +45,14 @@ export default function Login() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.centeredContent}
     >
-      {/* Branding Header */}
       <View style={styles.headerContainer}>
         <Text style={styles.brandSubtitle}>CASHSTASH</Text>
         <Text style={styles.brandTitle}>Welcome Back</Text>
       </View>
 
-      {/* Glass Form Panel */}
       <View style={styles.glassPanel}>
         <Text style={styles.loginTitle}>Login to Account</Text>
 
-        {/* Email Input */}
         <TextInput
           placeholder="Email Address"
           placeholderTextColor="#7D8F69"
@@ -64,7 +62,6 @@ export default function Login() {
           onChangeText={setEmail}
         />
 
-        {/* Password Input */}
         <View style={styles.passwordContainer}>
           <TextInput
             placeholder="Password"
@@ -83,14 +80,19 @@ export default function Login() {
           </TouchableOpacity>
         </View>
 
-        {/* Sign In Button */}
-        <TouchableOpacity activeOpacity={0.8} style={styles.signInButton}
+        <TouchableOpacity 
+          activeOpacity={0.8}
+         style={[styles.signInButton,isLoading && { opacity: 0.7} ]}
         onPress={handleLogin}
+        disabled={isLoading}
         >
+          {isLoading ?(
+            <ActivityIndicator color="#ffffff" />
+          ):(
           <Text style={styles.buttonText}>Sign In</Text>
+          )}
         </TouchableOpacity>
 
-        {/* Footer Link */}
         <View style={styles.footer}>
           <Text style={{ color: "#666" }}>New here? </Text>
           <Link href="/register" asChild>

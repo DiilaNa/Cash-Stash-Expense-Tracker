@@ -52,7 +52,6 @@ export default function UpdateTransaction() {
         style={{ flex: 1 }}
       >
         <ScrollView showsVerticalScrollIndicator={false}>
-          {/* Custom Header Navigation */}
           <View style={styles.navHeader}>
             <TouchableOpacity
               onPress={() => router.back()}
@@ -111,7 +110,6 @@ export default function UpdateTransaction() {
             </View>
           </View>
 
-          {/* Action Buttons */}
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               style={styles.saveBtn}
