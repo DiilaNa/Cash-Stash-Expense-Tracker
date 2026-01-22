@@ -63,7 +63,7 @@ export default function ViewTransactions() {
 
   const handleUpdate = (item: TransactionData) => {
     router.push({
-      pathname: "/(dashboard)/update",
+      pathname: "/update",
       params: {
         id: item.id,
         amount: item.amount.toString(),

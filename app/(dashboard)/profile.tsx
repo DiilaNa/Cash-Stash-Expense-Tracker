@@ -75,7 +75,7 @@ export default function Profile() {
             icon="person-outline"
             title="Personal Information"
             subtitle="Update your name and email"
-            onPress={() => {}}
+            onPress={() => {router.push("/updateprofile");}}
           />
           <ProfileOption
             icon="notifications-outline"

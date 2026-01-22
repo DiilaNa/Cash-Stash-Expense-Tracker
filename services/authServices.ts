@@ -1,5 +1,10 @@
 import { RegisterData } from "@/types/Auth";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  updateProfile,
+} from "firebase/auth";
 import { auth, db } from "./firebase";
 import { doc, setDoc } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -8,9 +13,9 @@ export const registerUser = async (userData: RegisterData) => {
   const response = await createUserWithEmailAndPassword(
     auth,
     userData.email,
-    userData.password
+    userData.password,
   );
-  
+
   await updateProfile(response.user, { displayName: userData.fullname });
 
   await setDoc(doc(db, "users", response.user.uid), {
@@ -29,5 +34,13 @@ export const logoutUser = async () => {
 };
 
 export const login = async (email: string, password: string) => {
-    return await signInWithEmailAndPassword(auth, email, password);
-}
+  return await signInWithEmailAndPassword(auth, email, password);
+};
+
+export const updateUserProfile = async (displayName: string) => {
+  const user = auth.currentUser;
+  if (user) {
+    return await updateProfile(user, { displayName });
+  }
+  throw new Error("No user logged in");
+};

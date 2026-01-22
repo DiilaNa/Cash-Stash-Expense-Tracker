@@ -100,7 +100,13 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen name="update" options={{ href: null }} />
+      <Tabs.Screen
+        name="(popup)/updateprofile"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen name="(popup)/update" options={{ href: null }} />
     </Tabs>
   );
 }
