@@ -118,3 +118,27 @@ export const getStatsData = (
     });
   });
 };
+
+import { getDocs } from "firebase/firestore";
+
+export const getCurrentBalance = async (): Promise<number> => {
+  const user = auth.currentUser;
+  if (!user) return 0;
+
+  const q = query(
+    collection(db, "transactions"),
+    where("userId", "==", user.uid),
+  );
+  const querySnapshot = await getDocs(q);
+
+  let income = 0;
+  let expense = 0;
+
+  querySnapshot.forEach((doc) => {
+    const data = doc.data() as TransactionData;
+    if (data.type === "income") income += data.amount;
+    else expense += data.amount;
+  });
+
+  return income - expense;
+};

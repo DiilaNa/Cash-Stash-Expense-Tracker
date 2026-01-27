@@ -1,5 +1,5 @@
 import { useLoader } from "@/hooks/useLoader";
-import { addTransaction } from "@/services/cashService";
+import { addTransaction, getCurrentBalance } from "@/services/cashService";
 import { auth } from "@/services/firebase";
 import { TransactionData } from "@/types/Cash";
 import { Ionicons } from "@expo/vector-icons";
@@ -16,6 +16,8 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Toast from "react-native-root-toast";
+import { RootSiblingParent } from "react-native-root-siblings";
 
 const CATEGORIES = [
   { id: "inc-1", name: "Salary", icon: "cash-outline", type: "income" },
@@ -34,7 +36,6 @@ const CATEGORIES = [
   },
   { id: "inc-5", name: "Scholarship", icon: "school-outline", type: "income" },
   { id: "inc-6", name: "Freelance", icon: "laptop-outline", type: "income" },
-
   {
     id: "exp-1",
     name: "Food & Drinks",
@@ -52,7 +53,9 @@ export default function AddTransaction() {
   const [type, setType] = useState<"income" | "expense">("expense");
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
-  const [selectedCat, setSelectedCat] = useState("2");
+  const [selectedCat, setSelectedCat] = useState("exp-1");
+  const [showBanner, setShowBanner] = useState(false);
+  const [bannerMsg] = useState("");
 
   const { showLoader, hideLoader, isLoading } = useLoader();
 
@@ -68,10 +71,11 @@ export default function AddTransaction() {
       return;
     }
 
+    const numericAmount = parseFloat(amount);
     const transactionData: TransactionData = {
       userId: user.uid,
       type: type,
-      amount: parseFloat(amount),
+      amount: numericAmount,
       description: description.trim(),
       categoryId: selectedCat,
       categoryName:
@@ -81,138 +85,166 @@ export default function AddTransaction() {
 
     try {
       showLoader();
+
+      const currentBalance = await getCurrentBalance();
+
       await addTransaction(transactionData);
 
-      Alert.alert("Success", "Transaction added successfully!");
+      if (type === "expense") {
+        const newBalance = currentBalance - numericAmount;
+        if (newBalance <= 1000) {
+          Toast.show(`⚠️ Low Balance: Rs. ${newBalance.toFixed(2)}`, {
+            duration: Toast.durations.LONG,
+            position: Toast.positions.TOP,
+            backgroundColor: "#B91C1C",
+          });
+        }
+      }
 
+      Alert.alert("Success", "Transaction added successfully!");
       setAmount("");
       setDescription("");
-      setSelectedCat("2");
     } catch (e) {
       console.error("Firestore Save Error: ", e);
-      Alert.alert("Error", "Failed to save transaction. Please try again.");
+      Alert.alert("Error", "Failed to save transaction.");
     } finally {
       hideLoader();
     }
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <Text style={styles.title}>Add Transaction</Text>
-        <View style={styles.toggleContainer}>
-          <TouchableOpacity
-            onPress={() => {
-              setType("expense");
-              setSelectedCat("2");
-            }}
-            style={[
-              styles.toggleBtn,
-              type === "expense" && styles.activeExpense,
-            ]}
-          >
-            <Text
-              style={[
-                styles.toggleText,
-                type === "expense" && styles.activeText,
-              ]}
-            >
-              Expense
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              setType("income");
-              setSelectedCat("1");
-            }}
-            style={[styles.toggleBtn, type === "income" && styles.activeIncome]}
-          >
-            <Text
-              style={[
-                styles.toggleText,
-                type === "income" && styles.activeText,
-              ]}
-            >
-              Income
-            </Text>
-          </TouchableOpacity>
-        </View>
+    <RootSiblingParent children={undefined}>
+      <SafeAreaView style={styles.container}>
+        {showBanner && (
+          <View style={styles.bannerContainer}>
+            <Ionicons name="warning" size={20} color="white" />
+            <Text style={styles.bannerText}>{bannerMsg}</Text>
+            <TouchableOpacity onPress={() => setShowBanner(false)}>
+              <Ionicons name="close" size={20} color="white" />
+            </TouchableOpacity>
+          </View>
+        )}
 
-        <View style={styles.card}>
-          <Text style={styles.label}>Amount (LKR)</Text>
-          <TextInput
-            style={[
-              styles.amountInput,
-              { color: type === "income" ? "#4F6F52" : "#1A4D2E" },
-            ]}
-            keyboardType="decimal-pad"
-            placeholder="0.00"
-            value={amount}
-            onChangeText={setAmount}
-          />
-        </View>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <Text style={styles.title}>Add Transaction</Text>
 
-        <View style={styles.card}>
-          <Text style={styles.label}>Description</Text>
-          <TextInput
-            style={styles.descInput}
-            placeholder="What was this for?"
-            placeholderTextColor="#A9AF94"
-            value={description}
-            onChangeText={setDescription}
-            multiline
-          />
-        </View>
-
-        <Text style={styles.sectionTitle}>Category</Text>
-        <View style={styles.catGrid}>
-          {CATEGORIES.filter((c) => c.type === type).map((cat) => (
+          <View style={styles.toggleContainer}>
             <TouchableOpacity
-              key={cat.id}
-              onPress={() => setSelectedCat(cat.id)}
+              onPress={() => {
+                setType("expense");
+                setSelectedCat("exp-1");
+              }}
               style={[
-                styles.catItem,
-                selectedCat === cat.id && styles.catActive,
+                styles.toggleBtn,
+                type === "expense" && styles.activeExpense,
               ]}
             >
-              <Ionicons
-                name={cat.icon as any}
-                size={24}
-                color={selectedCat === cat.id ? "white" : "#1A4D2E"}
-              />
               <Text
                 style={[
-                  styles.catText,
-                  selectedCat === cat.id && { color: "white" },
+                  styles.toggleText,
+                  type === "expense" && styles.activeText,
                 ]}
               >
-                {cat.name}
+                Expense
               </Text>
             </TouchableOpacity>
-          ))}
-        </View>
+            <TouchableOpacity
+              onPress={() => {
+                setType("income");
+                setSelectedCat("inc-1");
+              }}
+              style={[
+                styles.toggleBtn,
+                type === "income" && styles.activeIncome,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.toggleText,
+                  type === "income" && styles.activeText,
+                ]}
+              >
+                Income
+              </Text>
+            </TouchableOpacity>
+          </View>
 
-        <TouchableOpacity
-          disabled={isLoading}
-          onPress={handleSave}
-          style={[
-            styles.saveBtn,
-            { backgroundColor: type === "income" ? "#4F6F52" : "#1A4D2E" },
-            isLoading && { opacity: 0.7 },
-          ]}
-        >
-          {isLoading ? (
-            <ActivityIndicator color="white" />
-          ) : (
-            <Text style={styles.saveBtnText}>
-              Save {type === "income" ? "Income" : "Expense"}
-            </Text>
-          )}
-        </TouchableOpacity>
+          <View style={styles.card}>
+            <Text style={styles.label}>Amount (LKR)</Text>
+            <TextInput
+              style={[
+                styles.amountInput,
+                { color: type === "income" ? "#4F6F52" : "#1A4D2E" },
+              ]}
+              keyboardType="decimal-pad"
+              placeholder="0.00"
+              value={amount}
+              onChangeText={setAmount}
+            />
+          </View>
 
-        <View style={{ height: 100 }} />
-      </ScrollView>
-    </SafeAreaView>
+          <View style={styles.card}>
+            <Text style={styles.label}>Description</Text>
+            <TextInput
+              style={styles.descInput}
+              placeholder="What was this for?"
+              placeholderTextColor="#A9AF94"
+              value={description}
+              onChangeText={setDescription}
+              multiline
+            />
+          </View>
+
+          <Text style={styles.sectionTitle}>Category</Text>
+          <View style={styles.catGrid}>
+            {CATEGORIES.filter((c) => c.type === type).map((cat) => (
+              <TouchableOpacity
+                key={cat.id}
+                onPress={() => setSelectedCat(cat.id)}
+                style={[
+                  styles.catItem,
+                  selectedCat === cat.id && styles.catActive,
+                ]}
+              >
+                <Ionicons
+                  name={cat.icon as any}
+                  size={24}
+                  color={selectedCat === cat.id ? "white" : "#1A4D2E"}
+                />
+                <Text
+                  style={[
+                    styles.catText,
+                    selectedCat === cat.id && { color: "white" },
+                  ]}
+                >
+                  {cat.name}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          <TouchableOpacity
+            disabled={isLoading}
+            onPress={handleSave}
+            style={[
+              styles.saveBtn,
+              { backgroundColor: type === "income" ? "#4F6F52" : "#1A4D2E" },
+              isLoading && { opacity: 0.7 },
+            ]}
+          >
+            {isLoading ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <Text style={styles.saveBtnText}>
+                Save {type === "income" ? "Income" : "Expense"}
+              </Text>
+            )}
+          </TouchableOpacity>
+
+          <View style={{ height: 100 }} />
+        </ScrollView>
+      </SafeAreaView>
+    </RootSiblingParent>
   );
 }
 
@@ -246,9 +278,6 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 25,
     marginBottom: 20,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
     elevation: 2,
   },
   label: {
@@ -289,4 +318,19 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   saveBtnText: { color: "white", fontSize: 18, fontWeight: "700" },
+  bannerContainer: {
+    backgroundColor: "#B91C1C",
+    padding: 15,
+    borderRadius: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 20,
+    marginTop: 10,
+  },
+  bannerText: {
+    color: "white",
+    flex: 1,
+    marginHorizontal: 10,
+    fontWeight: "600",
+  },
 });
