@@ -50,7 +50,6 @@ export default function Stats() {
       <ScrollView showsVerticalScrollIndicator={false}>
         <Text style={styles.title}>Financial Analytics</Text>
 
-        {/* Stash Score Card */}
         <View style={styles.healthCard}>
           <View style={styles.healthTextContent}>
             <Text style={styles.healthTitle}>Stash Score</Text>
@@ -68,7 +67,6 @@ export default function Stats() {
           </View>
         </View>
 
-        {/* Chart Card */}
         <View style={styles.chartCard}>
           <Text style={styles.chartTitle}>Spending Distribution</Text>
           {stats.pieData.length > 0 ? (

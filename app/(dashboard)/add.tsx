@@ -105,7 +105,6 @@ export default function AddTransaction() {
       setAmount("");
       setDescription("");
     } catch (e) {
-      console.error("Firestore Save Error: ", e);
       Alert.alert("Error", "Failed to save transaction.");
     } finally {
       hideLoader();
@@ -113,7 +112,7 @@ export default function AddTransaction() {
   };
 
   return (
-    <RootSiblingParent children={undefined}>
+    <RootSiblingParent>
       <SafeAreaView style={styles.container}>
         {showBanner && (
           <View style={styles.bannerContainer}>
