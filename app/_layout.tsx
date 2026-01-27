@@ -11,8 +11,8 @@ const RootLayout = () => {
   const insets = useSafeAreaInsets();
   
   return (
-    <LoaderProvider>
-      <AuthProvider>
+    <LoaderProvider children={undefined}>
+      <AuthProvider children={undefined}>
         <View style={{ marginTop: insets.top, flex: 1 }}>
           <Slot />
         </View>
