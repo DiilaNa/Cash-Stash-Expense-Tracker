@@ -14,6 +14,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { TransactionData, TransactionSummary } from "@/types/Cash";
+import { getDocs } from "firebase/firestore";
 
 export const addTransaction = async (transactiondata: TransactionData) => {
   return await addDoc(collection(db, "transactions"), transactiondata);
@@ -119,7 +120,6 @@ export const getStatsData = (
   });
 };
 
-import { getDocs } from "firebase/firestore";
 
 export const getCurrentBalance = async (): Promise<number> => {
   const user = auth.currentUser;

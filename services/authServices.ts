@@ -37,10 +37,16 @@ export const login = async (email: string, password: string) => {
   return await signInWithEmailAndPassword(auth, email, password);
 };
 
-export const updateUserProfile = async (displayName: string) => {
+import { reload } from "firebase/auth";
+import { updateDoc } from "firebase/firestore";
+
+export const updateUserProfile = async (newName: string) => {
   const user = auth.currentUser;
-  if (user) {
-    return await updateProfile(user, { displayName });
-  }
-  throw new Error("No user logged in");
+  if (!user) throw new Error("No user logged in");
+
+  await updateProfile(user, { displayName: newName });
+
+  const userRef = doc(db, "users", user.uid); 
+  await updateDoc(userRef, { fullName: newName });
+  await reload(user);
 };

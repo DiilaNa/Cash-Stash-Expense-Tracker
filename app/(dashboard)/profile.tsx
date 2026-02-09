@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -9,13 +9,21 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { auth } from "@/services/firebase";
 import { logoutUser } from "@/services/authServices";
 
 export default function Profile() {
   const router = useRouter();
   const user = auth.currentUser;
+
+  const [displayName, setDisplayName] = useState(auth.currentUser?.displayName);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      setDisplayName(auth.currentUser?.displayName);
+    }, []),
+  );
 
   const handleLogout = async () => {
     Alert.alert("Logout", "Are you sure you want to sign out?", [
@@ -64,7 +72,7 @@ export default function Profile() {
             </Text>
           </View>
           <Text style={styles.userName}>
-            {user?.displayName || "CashStasher"}
+            {displayName || "CashStasher"}
           </Text>
           <Text style={styles.userEmail}>{user?.email}</Text>
         </View>
@@ -75,7 +83,9 @@ export default function Profile() {
             icon="person-outline"
             title="Personal Information"
             subtitle="Update your name and email"
-            onPress={() => {router.push("/updateprofile");}}
+            onPress={() => {
+              router.push("/updateprofile");
+            }}
           />
           <ProfileOption
             icon="notifications-outline"

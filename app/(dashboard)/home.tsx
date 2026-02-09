@@ -12,6 +12,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { auth } from "@/services/firebase";
 import { Totals, TransactionData } from "@/types/Cash";
 import { getTransactionsByUser } from "@/services/cashService";
+import { useFocusEffect } from "expo-router";
 
 export default function Dashboard() {
   const [transactions, setTransactions] = useState<TransactionData[]>([]);
@@ -21,6 +22,15 @@ export default function Dashboard() {
     income: 0,
     expense: 0,
   });
+
+    const [displayName, setDisplayName] = useState(auth.currentUser?.displayName);
+  
+    useFocusEffect(
+      React.useCallback(() => {
+        setDisplayName(auth.currentUser?.displayName);
+      }, []),
+    );
+  
 
   useEffect(() => {
     const unsubscribe = getTransactionsByUser((data) => {
@@ -56,7 +66,7 @@ export default function Dashboard() {
           <View>
             <Text style={styles.greeting}>Good Morning,</Text>
             <Text style={styles.userName}>
-              {auth.currentUser?.displayName || "CashStasher"}
+              {displayName || "CashStasher"}
             </Text>
           </View>
           <TouchableOpacity style={styles.notifBtn}>
